@@ -1,0 +1,44 @@
+service: toco-project-backup
+
+frameworkVersion: '2 || 3'
+
+custom:
+  config: ${file(./configs.yml)}
+  pythonRequirements:
+    zip: true
+
+provider:
+  lambdaHashingVersion: '20201221'
+  name: aws
+  memorySize: 128
+  timeout: 60
+  stage: ${self:custom.config.provider.stage}
+  runtime: ${self:custom.config.provider.runtime}
+  region: ${self:custom.config.provider.region}
+  role: ${self:custom.config.provider.role}
+
+  vpc:
+    securityGroupIds: ${self:custom.config.provider.ec2_sg}
+    subnetIds: ${self:custom.config.provider.subnets}
+
+package:
+  exclude:
+    - .idea/**
+    - __pycache__/**
+    - dumps/**
+    - node_modules/**
+
+functions:
+  selectProject:
+    handler: handler.select_project
+    events:
+      - schedule:
+          rate: cron(*/30 * * * ? *)
+          enabled: true
+          description: 'project-backup-selector'
+  backupProject:
+    handler: handler.backup_project
+    events:
+      - sqs: ${self:custom.config.provider.sqs}
+plugins:
+  - serverless-python-requirements

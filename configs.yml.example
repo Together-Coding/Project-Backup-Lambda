@@ -1,0 +1,20 @@
+provider:
+  stage: prod
+  runtime: python3.9
+  region: 
+  role: 
+  sqs: 
+  subnets:
+    - 
+  ec2_sg:
+    - 
+
+application:
+  AWS_REGION: 
+  SQS_NAME: 
+  S3_BUCKET: 
+
+  TIME_LIMIT: 600
+  SQLALCHEMY_DATABASE_URI: 
+  REDIS_URL: 
+  REDIS_DB: 1

@@ -7,12 +7,10 @@ To prevent this situation, **Project-Backup-Lambda** periodically picks out proj
 
 ![architecture](./docs/architecture.png)
 
-
 ## How it works
 
 - AWS EventBridge triggers `select_project` Lambda function every 30 minutes. It enqueues the project IDs that should be processed to AWS SQS.  
 - AWS SQS triggers `backup_project` Lambda function for each message.
-
 
 ## What it does
 
@@ -20,7 +18,6 @@ To prevent this situation, **Project-Backup-Lambda** periodically picks out proj
 
 1. Query `user_projects` table to select the projects that are not accessed for 10 minutes but have active flags.
 2. For each project queried, send its ID to AWS SQS.
-
 
 ### Backup
 
@@ -33,22 +30,24 @@ For each project from AWS SQS, the following processes are done:
 5. Remove the data from Redis.
 6. Set its flag as inactive.
 
-
 ## Requirements
 
 - Node.js v14
 - Python 3.9+
-
 
 ## Development
 
 1. Install [serverless](https://www.serverless.com/) framework and a plugin.  
     `$ npm i serverless && sls plugin install -n serverless-python-requirements`
 2. Copy a config file and modify it for you.  
-    `$ cp configs.yml.example configs.yml`
-3. To run functions, just use python.  
-    `$ python handler.py`
+    `$ cp configs.yml.example configs.yml`  
+    > Note: You may have to use private subnets depending on your network configs.
+3. Set SSH tunneling for you to be able to access AWS Elasticache.  
+    > AWS Elasticache can only be accessed from the same VPC of it.  
 
+    `$ ssh -i <ssh_pem_key> <EC2_user>@<EC2_IP_address> -f -N -L 6379:<Redis_endpoint>:6379`
+4. To run functions, just use python.  
+    `$ python handler.py`
 
 ## Deployment
 
